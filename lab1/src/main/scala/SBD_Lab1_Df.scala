@@ -78,7 +78,6 @@ object SBD_Lab1_Df {
 		Logger.getLogger("org.apache.spark").setLevel(Level.WARN)
 		
 		val spark = SparkSession.builder.appName("SBD_Lab1").config("spark.master", "local[*]").getOrCreate()
-		// val sc = spark.sparkContext
 
 		import spark.implicits._	
 		
@@ -89,7 +88,6 @@ object SBD_Lab1_Df {
 		val processed_ds = ds
 						.filter(col("DATE").isNotNull && col("AllNames").isNotNull)
 						.select("DATE", "AllNames")
-						// .withColumn("UniqueID", monotonically_increasing_id)
 						.withColumn("AllNames", regexp_replace($"AllNames" ,"[,0-9]", ""))
 						.withColumn("OnlyNames", split($"AllNames", ";"))
 						.drop("AllNames")
