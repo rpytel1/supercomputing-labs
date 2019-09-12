@@ -105,6 +105,7 @@ object SBD_Lab1_Df {
 						.withColumn("DistinctNames", mkSet($"OnlyNames")) 									// keep only one occurence for each name in each file
 						.drop("OnlyNames")																	// drop the unnecessary column
 						.withColumn("DistinctNames", explode($"DistinctNames"))								// convert column to rows so that all date - name pairs are created
+						.filter(!col("DistinctNames").contains("Type ParentCategory"))						// Filter out ParentCategory
 						.groupBy("DATE", "DistinctNames")													// group by the columns in order to count the occurences
 						.count 																				// of each distinct name in each day
 						.withColumn("Rank", rank.over(Window.partitionBy("DATE").orderBy($"count".desc)))	// partition by date and find the rank in each day window
