@@ -11,7 +11,7 @@ import scala.collection.mutable.WrappedArray
 
 
 object SBD_Lab1_Df {
-    case class GdeltData (
+    case class GdeltData (				// the class of the Gdelt dataset
 	    GKGRECORDID: String,
 	    DATE: Date,
 	    SourceCollectionIdentifier: Int,
@@ -43,7 +43,7 @@ object SBD_Lab1_Df {
 
 	def main(args: Array[String]) {
 
-		val schema = StructType( 
+		val schema = StructType(										// the schema of the Gdelt dataset
 			Array(
 			    StructField("GKGRECORDID", StringType, nullable = true),
 			    StructField("DATE", DateType, nullable = true),
@@ -81,31 +81,46 @@ object SBD_Lab1_Df {
 
 		import spark.implicits._	
 		
+		// a user-defined function for converting a WrappedArray column to Set and then back to Array
 		val mkSet = udf((arrayCol: Seq[String]) => arrayCol.asInstanceOf[WrappedArray[String]].toSet.toArray)
+		
+		// a user-defined function for converting a list of lists to an array of struct of tuples
+		val mkList = udf((arrayCol: Seq[Seq[String]]) => 
+			arrayCol.asInstanceOf[WrappedArray[WrappedArray[String]]].map(s => s.toString.replaceAll("[()]", "").replaceAll("\\bWrappedArray","").split(",\\s")).map { case Array(f1,f2) => (f1,f2.toInt)}) 
+		
+		//the final JSON schema 
+		val finalJSONSchema: String = "array<struct<topic:string,count:bigint>>"
 
-		val ds = spark.read.format("csv").option("delimiter", "\t").option("dateFormat", "yyyyMMddHHmmss").schema(schema).csv("data/seg10.csv").as[GdeltData]
+		val ds = spark.read.format("csv")
+				.option("delimiter", "\t")				// set the delimeter option as tab
+				.option("dateFormat", "yyyyMMddHHmmss")	// set the date format
+				.schema(schema).csv("data/seg10.csv").as[GdeltData]
 
 		val processed_ds = ds
-						.filter(col("DATE").isNotNull && col("AllNames").isNotNull)
-						.select("DATE", "AllNames")
-						.withColumn("AllNames", regexp_replace($"AllNames" ,"[,0-9]", ""))
-						.withColumn("OnlyNames", split($"AllNames", ";"))
-						.drop("AllNames")
-						.withColumn("DistinctNames", mkSet($"OnlyNames")) 
-						.drop("OnlyNames")
-						.withColumn("DistinctNames", explode($"DistinctNames"))
-						.groupBy("DATE", "DistinctNames")
-						.count
-						.withColumn("Rank", rank.over(Window.partitionBy("DATE").orderBy($"count".desc)))
-						.filter(col("Rank") <= 10)
-						.drop("Rank")
-						.withColumn("merged", array("DistinctNames", "count"))
-						.drop("DistinctNames")
+						.filter(col("DATE").isNotNull && col("AllNames").isNotNull)							// filter out the null entries
+						.select("DATE", "AllNames")															// keep only the DATE and AllNames columns
+						.withColumn("AllNames", regexp_replace($"AllNames" ,"[,0-9]", ""))					// keep only the name of the entities 
+						.withColumn("OnlyNames", split($"AllNames", ";"))									// split these names 
+						.drop("AllNames")																	// drop the unnecessary column
+						.withColumn("DistinctNames", mkSet($"OnlyNames")) 									// keep only one occurence for each name in each file
+						.drop("OnlyNames")																	// drop the unnecessary column
+						.withColumn("DistinctNames", explode($"DistinctNames"))								// convert column to rows so that all date - name pairs are created
+						.groupBy("DATE", "DistinctNames")													// group by the columns in order to count the occurences
+						.count 																				// of each distinct name in each day
+						.withColumn("Rank", rank.over(Window.partitionBy("DATE").orderBy($"count".desc)))	// partition by date and find the rank in each day window
+						.filter(col("Rank") <= 10)															//  keep only the top 10 counts for each day
+						.drop("Rank")																		// drop the rank column
+						.withColumn("merged", array("DistinctNames", "count"))								// and merge the count and names in a tuple
+						.drop("DistinctNames")																// drop the unnecessary columns
 						.drop("count")
-						.groupBy("DATE")
-						.agg(collect_list(col("merged")).as("final"))
+						.groupBy("DATE")																	// and finally group by DATE
+						.agg(collect_list(col("merged")).as("TopNames"))					
+						.orderBy($"DATE".asc)																// and ascendingly order by date
+						.withColumn("TopNames", mkList($"TopNames"))										// change the structure of the final dataset
+						.select('DATE as "data", 'TopNames.cast(finalJSONSchema) as "result")				// and apply the final JSON format
+						.toJSON
 
-		processed_ds.take(20).foreach(println)
+		processed_ds.collect().foreach(println)		// print the wanted result
 		
 		spark.stop()
 	}
