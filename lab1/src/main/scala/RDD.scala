@@ -30,6 +30,6 @@ object RDD {
   }
 
   def reformatName(elem: String): Array[String] = {
-  elem.replaceAll("[,0-9]","").split(";")
+  elem.replaceAll("[,0-9]","").split(";").toSet.toArray
   }
 }
