@@ -3,6 +3,12 @@ import org.apache.log4j.{Level, Logger}
 import org.apache.spark.{SparkContext,SparkConf}
 
 object RDD {
+
+case class DateResult (                  // the class of the final format
+        Date: String,
+        Topics: List[(String,Int)]
+    )
+
   def main(args: Array[String]) {
     Logger.getLogger("org.apache.spark").setLevel(Level.WARN)
     val conf = new SparkConf().setAppName("RDD").setMaster("local")
@@ -19,7 +25,7 @@ object RDD {
       .map(k=>(k._1._1,(k._1._2,k._2)))// Change Structure to have date and name seperetly
       .groupByKey() // Group to have all names with popularity for one date
       .map(g => (g._1, g._2.toList.sortWith(_._2 > _._2).take(10))) // Order them in decreasing order and take only 10 most popular
-      .foreach(a => println(a))// Print it
+      .foreach(a => println(DateResult(a._1, a._2)))// Print it in the right way
 
 
     spark.stop()
