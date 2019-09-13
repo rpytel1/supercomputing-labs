@@ -100,27 +100,23 @@ object SBD_Lab1_Df {
                             .filter(col("DATE").isNotNull && col("AllNames").isNotNull)                         // filter out the null entries
                             .select("DATE", "AllNames")                                                         // keep only the DATE and AllNames columns
                             .withColumn("AllNames", regexp_replace($"AllNames" ,"[,0-9]", ""))                  // keep only the name of the entities 
-                            .withColumn("OnlyNames", split($"AllNames", ";"))                                   // split these names 
-                            .drop("AllNames")                                                                   // drop the unnecessary column
-                            .withColumn("DistinctNames", mkSet($"OnlyNames"))                                   // keep only one occurence for each name in each file
-                            .drop("OnlyNames")                                                                  // drop the unnecessary column
-                            .withColumn("DistinctNames", explode($"DistinctNames"))                             // convert column to rows so that all date - name pairs are created
-                            .filter(!col("DistinctNames").contains("Type ParentCategory"))                      // Filter out ParentCategory
-                            .groupBy("DATE", "DistinctNames")                                                   // group by the columns in order to count the occurences
-                            .count                                                                              // of each distinct name in each day
+                            .withColumn("AllNames", split($"AllNames", ";"))                                 // split these names                          
+                            .withColumn("AllNames", mkSet($"AllNames"))                                      // keep only one occurence for each name in each file
+                            .withColumn("AllNames", explode($"AllNames"))                             // convert column to rows so that all date - name pairs are created
+                            .filter(!col("AllNames").contains("Type ParentCategory"))                     // Filter out ParentCategory
+                            .groupBy("DATE", "AllNames")                                                   // group by the columns in order to count the occurences
+                            .count                                                                             // of each distinct name in each day
                             .withColumn("Rank", rank.over(Window.partitionBy("DATE").orderBy($"count".desc)))   // partition by date and find the rank in each day window
-                            .filter(col("Rank") <= 10)                                                          //  keep only the top 10 counts for each day
-                            .drop("Rank")                                                                       // drop the rank column
-                            .withColumn("merged", array("DistinctNames", "count"))                              // and merge the count and names in a tuple
-                            .drop("DistinctNames")                                                              // drop the unnecessary columns
-                            .drop("count")
-                            .groupBy("DATE")                                                                    // and finally group by DATE
+                            .filter(col("Rank") <= 10)                                                         //  keep only the top 10 counts for each day
+                            .withColumn("merged", array("AllNames", "count"))                              // and merge the count and names in a tuple
+                            .groupBy("DATE")                                                           // and finally group by DATE
                             .agg(collect_list(col("merged")).as("TopNames"))					
                             .orderBy($"DATE".asc)                                                               // and ascendingly order by date
                             .withColumn("TopNames", mkList($"TopNames"))                                        // change the structure of the final dataset
                             .select('DATE as "data", 'TopNames.cast(finalJSONSchema) as "result")               // and apply the final JSON format
                             .toJSON
                             .collect()}
+
 
         processed_ds.foreach(println)     // print the wanted result
 
