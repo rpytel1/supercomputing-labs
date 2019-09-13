@@ -96,7 +96,7 @@ object SBD_Lab1_Df {
                 .option("dateFormat", "yyyyMMddHHmmss") // set the date format
                 .schema(schema).csv("data/seg10.csv").as[GdeltData]
 
-        val processed_ds = ds
+        val processed_ds = time{ds
                             .filter(col("DATE").isNotNull && col("AllNames").isNotNull)                         // filter out the null entries
                             .select("DATE", "AllNames")                                                         // keep only the DATE and AllNames columns
                             .withColumn("AllNames", regexp_replace($"AllNames" ,"[,0-9]", ""))                  // keep only the name of the entities 
@@ -120,9 +120,20 @@ object SBD_Lab1_Df {
                             .withColumn("TopNames", mkList($"TopNames"))                                        // change the structure of the final dataset
                             .select('DATE as "data", 'TopNames.cast(finalJSONSchema) as "result")               // and apply the final JSON format
                             .toJSON
+                            .collect()}
 
-        processed_ds.collect().foreach(println)     // print the wanted result
+        processed_ds.foreach(println)     // print the wanted result
 
         spark.stop()
+    }
+
+
+    def time[R](block: => R): R = {
+        
+        val t0 = System.currentTimeMillis()
+        val result = block    // call-by-name
+        val t1 = System.currentTimeMillis()
+        println("Elapsed time: " + (t1 - t0) + "ms")
+        result
     }
 }
