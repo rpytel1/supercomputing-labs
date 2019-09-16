@@ -94,9 +94,12 @@ object SBD_Lab1_Df {
         val ds = spark.read.format("csv")
                 .option("delimiter", "\t")              // set the delimeter option as tab
                 .option("dateFormat", "yyyyMMddHHmmss") // set the date format
-                .schema(schema).csv("data/seg50.csv").as[GdeltData]
+                .schema(schema)
+                // .csv("data/seg100.csv")
+                .csv("data/segment/*.csv")
+                .as[GdeltData]
 
-        val processed_ds = time{ds
+        val processed_ds = ds
                             .filter(col("DATE").isNotNull && col("AllNames").isNotNull)                         // filter out the null entries
                             .select("DATE", "AllNames")                                                         // keep only the DATE and AllNames columns
                             .select($"DATE", explode(mkSet(split(regexp_replace($"AllNames" ,"[,0-9]", ""), ";"))).as("AllNames"))  // clean the entity names -> convert them into set -> create date-name pairs
@@ -111,9 +114,12 @@ object SBD_Lab1_Df {
                             .withColumn("TopNames", mkList($"TopNames"))                                        // change the structure of the final dataset
                             .select('DATE as "data", 'TopNames.cast(finalJSONSchema) as "result")               // and apply the final JSON format
                             .toJSON
-                            .collect()}
+                            // .collect()
 
-        processed_ds.foreach(println)   // print the wanted result
+        // processed_ds.foreach(println)   // print the wanted result
+        processed_ds.coalesce(1)
+                    .write
+                    .text("data/results/res150")
 
         spark.stop()
     }
