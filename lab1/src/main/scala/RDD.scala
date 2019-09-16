@@ -25,8 +25,8 @@ case class DateResult (                  // the class of the final format
       .reduceByKey(_ + _)// Reduce to get popularity for each date+title instance
       .map(k=>(k._1._1,(k._1._2,k._2)))// Change Structure to have date and name seperetly
       .groupByKey() // Group to have all names with popularity for one date
-      .map(g => (g._1, g._2.toList.sortWith(_._2 > _._2).take(10)))}// Order them in decreasing order and take only 10 most popular
-      
+      .map(g => (g._1, g._2.toList.sortWith(_._2 > _._2).take(10)))// Order them in decreasing order and take only 10 most popular
+      .sortBy(_._1)}
 
     processedRDD.foreach(a => println(DateResult(a._1, a._2)))// Print it in the right way
 
