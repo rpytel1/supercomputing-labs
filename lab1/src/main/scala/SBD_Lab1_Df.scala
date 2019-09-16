@@ -117,20 +117,8 @@ object SBD_Lab1_Df {
                             // .collect()
 
         // processed_ds.foreach(println)   // print the wanted result
-        processed_ds.coalesce(1)
-                    .write
-                    .text("data/results/res150")
+        processed_ds.coalesce(1).write.text("data/results/res150")
 
         spark.stop()
-    }
-
-
-    def time[R](block: => R): R = {
-        
-        val t0 = System.currentTimeMillis()
-        val result = block    // call-by-name
-        val t1 = System.currentTimeMillis()
-        println("Elapsed time: " + (t1 - t0) + "ms")
-        result
     }
 }
