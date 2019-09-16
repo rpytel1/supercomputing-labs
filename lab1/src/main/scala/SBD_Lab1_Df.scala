@@ -95,8 +95,7 @@ object SBD_Lab1_Df {
                 .option("delimiter", "\t")              // set the delimeter option as tab
                 .option("dateFormat", "yyyyMMddHHmmss") // set the date format
                 .schema(schema)
-                // .csv("data/seg100.csv")
-                .csv("data/segment/*.csv")
+                .csv(args(0))
                 .as[GdeltData]
 
         val processed_ds = ds
@@ -116,8 +115,8 @@ object SBD_Lab1_Df {
                             .toJSON
                             // .collect()
 
-        // processed_ds.foreach(println)   // print the wanted result
-        processed_ds.coalesce(1).write.text("data/results/res150")
+        // processed_ds.foreach(println)   
+        processed_ds.coalesce(1).write.text(args(1))    // write the wanted result
 
         spark.stop()
     }
