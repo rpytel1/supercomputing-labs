@@ -113,9 +113,7 @@ object SBD_Lab1_Df {
                             .withColumn("TopNames", mkList($"TopNames"))                                        // change the structure of the final dataset
                             .select('DATE as "data", 'TopNames.cast(finalJSONSchema) as "result")               // and apply the final JSON format
                             .toJSON
-                            // .collect()
 
-        // processed_ds.foreach(println)   
         processed_ds.coalesce(1).write.text(args(1))    // write the wanted result
 
         spark.stop()
