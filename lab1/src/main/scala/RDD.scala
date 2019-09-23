@@ -6,7 +6,7 @@ object RDD {
 
   def main(args: Array[String]) {
     Logger.getLogger("org.apache.spark").setLevel(Level.WARN)
-    val conf = new SparkConf().setAppName("RDD").setMaster("local")
+    val conf = new SparkConf().setAppName("RDD")
     val spark = new SparkContext(conf)
 
     val rdd = spark.textFile(args(0))   // Extract data from folder

@@ -77,7 +77,7 @@ object SBD_Lab1_Df {
 
         Logger.getLogger("org.apache.spark").setLevel(Level.WARN)
 
-        val spark = SparkSession.builder.appName("SBD_Lab1").config("spark.master", "local[*]").getOrCreate()
+        val spark = SparkSession.builder.appName("SBD_Lab1").getOrCreate()
 
         import spark.implicits._	
 
