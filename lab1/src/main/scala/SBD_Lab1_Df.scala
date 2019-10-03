@@ -83,10 +83,6 @@ object SBD_Lab1_Df {
 
         // a user-defined function for converting a WrappedArray column to Set and then back to Array
         val mkSet = udf((arrayCol: Seq[String]) => arrayCol.asInstanceOf[WrappedArray[String]].toSet.toArray)
-
-        // a user-defined function for converting a list of lists to an array of struct of tuples
-        val mkList = udf((arrayCol: Seq[Seq[String]]) => 
-            arrayCol.asInstanceOf[WrappedArray[WrappedArray[String]]].map(s => s.toString.replaceAll("[()]", "").replaceAll("\\bWrappedArray","").split(",\\s")).map { case Array(f1,f2) => (f1,f2.toInt)}) 
 		
         //the final JSON schema 
         val finalJSONSchema: String = "array<struct<topic:string,count:bigint>>"
@@ -108,13 +104,15 @@ object SBD_Lab1_Df {
                             .withColumn("Rank", rank.over(Window.partitionBy("DATE").orderBy($"count".desc)))   // partition by date and find the rank in each day window
                             .filter(col("Rank") <= 10)                                                          // keep only the top 10 counts for each day
                             .groupBy("DATE")                                                                    // group by DATE
-                            .agg(collect_list(array("AllNames", "count")).as("TopNames"))					    // and collect top-10 name-count pairs as a list on each date 
+                            .agg(collect_list(struct("AllNames", "count")).as("TopNames"))					    // and collect top-10 name-count pairs as a list on each date 
                             .orderBy($"DATE".asc)                                                               // and ascendingly order by date
-                            .withColumn("TopNames", mkList($"TopNames"))                                        // change the structure of the final dataset
                             .select('DATE as "data", 'TopNames.cast(finalJSONSchema) as "result")               // and apply the final JSON format
                             .toJSON
 
-        processed_ds.coalesce(1).write.text(args(1))    // write the wanted result
+        processed_ds
+                    .coalesce(1)        // can be commented out for parallel S3 writes
+                    .write
+                    .text(args(1))      // write the wanted result
 
         spark.stop()
     }
