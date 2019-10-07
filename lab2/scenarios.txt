@@ -1,0 +1,17 @@
+1. Lab1 version with bare.json
+2. Parallel writes with bare.json
+3. No udfs with bare.json
+4. Latest with maximizeResourceOnly.json
+5. Latest with lotOfExecutorsNoMRA.json
+6. Latest with lotOfExecutorsMRA.json
+7. TODO: VST can extend
+
+Check:
+- Run time
+- CPU utilization
+- memory utilization
+- bandwidth IO
+or download all images you can
+
+
+
