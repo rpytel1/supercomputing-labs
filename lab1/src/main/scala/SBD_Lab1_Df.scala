@@ -77,12 +77,9 @@ object SBD_Lab1_Df {
 
         Logger.getLogger("org.apache.spark").setLevel(Level.WARN)
 
-        val spark = SparkSession.builder.appName("SBD_Lab1").config("spark.master", "local[*]").getOrCreate()
+        val spark = SparkSession.builder.appName("SBD_Lab1").getOrCreate()
 
         import spark.implicits._	
-
-        // a user-defined function for converting a WrappedArray column to Set and then back to Array
-        val mkSet = udf((arrayCol: Seq[String]) => arrayCol.asInstanceOf[WrappedArray[String]].toSet.toArray)
 		
         //the final JSON schema 
         val finalJSONSchema: String = "array<struct<topic:string,count:bigint>>"
