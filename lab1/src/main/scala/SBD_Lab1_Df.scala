@@ -77,7 +77,7 @@ object SBD_Lab1_Df {
 
         Logger.getLogger("org.apache.spark").setLevel(Level.WARN)
 
-        val spark = SparkSession.builder.appName("SBD_Lab1").getOrCreate()
+        val spark = SparkSession.builder.appName("SBD_Lab1").config("spark.master", "local[*]").getOrCreate()
 
         import spark.implicits._	
 
@@ -97,7 +97,7 @@ object SBD_Lab1_Df {
         val processed_ds = ds
                             .filter(col("DATE").isNotNull && col("AllNames").isNotNull)                         // filter out the null entries
                             .select("DATE", "AllNames")                                                         // keep only the DATE and AllNames columns
-                            .select($"DATE", explode(mkSet(split(regexp_replace($"AllNames" ,"[,0-9]", ""), ";"))).as("AllNames"))  // clean the entity names -> convert them into set -> create date-name pairs
+                            .select($"DATE", explode(array_distinct(split(regexp_replace($"AllNames" ,"[,0-9]", ""), ";"))).as("AllNames"))  // clean the entity names -> convert them into set -> create date-name pairs
                             .filter(!col("AllNames").contains("Type ParentCategory"))                           // Filter out ParentCategory
                             .groupBy("DATE", "AllNames")                                                        // group by the columns in order to count the occurences
                             .count                                                                              // of each distinct name in each day
