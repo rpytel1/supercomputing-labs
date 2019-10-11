@@ -2,20 +2,18 @@
   {
     "Classification": "spark",
     "Properties": {
-      "maximizeResourceAllocation": "false"
+      "maximizeResourceAllocation": "true"
     }
   },
   {
     "Classification": "spark-defaults",
     "Properties": {
-      "spark.dynamicAllocation.enabled": "false",
-      "spark.executor.cores": "17",
-      "spark.executor.instances": "37",
-      "spark.yarn.executor.memoryOverhead": "3000M",
-      "spark.yarn.driver.memoryOverhead": "3000M",
-      "spark.yarn.scheduler.reporterThread.maxFailures": "5",
-      "spark.storage.level": "MEMORY_AND_DISK_SER",
-      "spark.default.parallelism": "1258"
+
+      "spark.executor.instances": "20",
+      "spark.driver.memory": "26000M",
+      "spark.executor.memory": "26000M",
+      "spark.driver.cores": "17",
+      "spark.yarn.scheduler.reporterThread.maxFailures": "5"
     }
   }
 ]

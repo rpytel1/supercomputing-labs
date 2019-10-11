@@ -2,11 +2,11 @@
 1 master 20 slaves c4.4x
 time: 12s(reading) + 5,6 min(processing) 15s(saving)
 
-2. Lab1 version with parallel writing.json
+2. Lab1 version with parallel writing bare.json
 11s(reading) 5,4 min (processing) 15 s (saving)
 graphs similar to 1)
 
-3. No udfs with bare.json
+3. No udfs with bare.json with parallel
 11s(reading) 5,4 min (processing) 15 s (saving)
 
 4.Latest with maximizeResourceOnly.json
@@ -34,6 +34,16 @@ load on lvl 50%
 10. 2 executors.json 10 machines
 14s+ 11min + 18s
 45% lvl..
+
+
+11. 7 executors per machine
+10 + 5.2min + 11s
+quite smooth 65%
+
+12. 7 cores maximize resources
+maxAllocation
+same as 11)
+
 
 
 price: 0.302 $
