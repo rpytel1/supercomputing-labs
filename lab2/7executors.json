@@ -9,15 +9,15 @@
    "Classification": "spark-defaults",
    "Properties": {
      "spark.dynamicAllocation.enabled": "false",
-     "spark.driver.memory": "26000M",
-     "spark.executor.memory": "26000M",
-     "spark.executor.cores": "17",
-     "spark.executor.instances": "39",
-     "spark.yarn.executor.memoryOverhead": "3000M",
-     "spark.yarn.driver.memoryOverhead": "3000M",
+     "spark.driver.memory": "7000M",
+     "spark.executor.memory": "7000M",
+     "spark.executor.cores": "5",
+     "spark.executor.instances": "139",
+     "spark.yarn.executor.memoryOverhead": "1000M",
+     "spark.yarn.driver.memoryOverhead": "1000M",
      "spark.executor.extraJavaOptions": "-XX:+UseG1GC -XX:+UnlockDiagnosticVMOptions -XX:+G1SummarizeConcMark -XX:InitiatingHeapOccupancyPercent=35 -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:OnOutOfMemoryError='kill -9 %p'",
      "spark.driver.extraJavaOptions": "-XX:+UseG1GC -XX:+UnlockDiagnosticVMOptions -XX:+G1SummarizeConcMark -XX:InitiatingHeapOccupancyPercent=35 -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:OnOutOfMemoryError='kill -9 %p'",
-     "spark.default.parallelism": "1326"
+     "spark.default.parallelism": "1390"
    }
   }
 ]
