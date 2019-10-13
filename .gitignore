@@ -92,4 +92,7 @@ modules.xml
 *.class
 *.log
 
+### Images ###
+*.png
+
 # End of https://www.gitignore.io/api/scala,intellij+all
