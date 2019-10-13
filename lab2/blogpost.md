@@ -115,7 +115,7 @@ To reduce the aforementioned possible I/O bottleneck we used a 80GBit Root Devic
 
 ![Figure 19: 7 executors memory](./images/multiple-executors/7exec/memory.png)
 
-![Figure 20: 7 executors network](./images/multiple-executors/7exec/network.png)
+![Figure 20: 7 executors network](./images/multiple-executors/7exec/bandwith.png)
 
 ![Figure 21: 7 executors executors](./images/multiple-executors/7exec/executors.png)
 
@@ -147,7 +147,6 @@ As it was mentioned in the report of the first lab assignment, we decided that i
 
  ![Figure 29: cost](./images/metrics/cost.gif)
 
- *throughput / cost* ratio, where *throughput = dataset size / execution time* and *cost = number of instances x price per hour x execution time / 60*
 
 To do so, we varied the number of core nodes used so that the price would decrease, at the expense of performance degradation of course. The configurations that provided the best results so far were tested, meaning 7 executors per node with the Garbage First Garbage Collector (G1GC) applied, for a varying number of core nodes, ranging from 10 to 20 with a step of 5. We attempted to retain the processing time lower or close to 10 minutes, so that the execution time could be still considered adequate. The results of our experimentation can be seen in the following table. The complete graphs of these executions can be found in the [respective images folders](https://github.com/rpytel1/supercomputing-labs/tree/master/lab2/images) of this repository.
 
