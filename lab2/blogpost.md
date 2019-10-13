@@ -63,11 +63,11 @@ Initially, we noticed that the garbage collection process occupied 15.9% of the 
 
 In the following figures, the cpu, memory and network utilizations are presented when G1GC was used. A slight improvement to all these metrics compared to the results obtained for our best performing configuration from the [Code optimization](#code-optimization) section can be observed. In particular, the cpu utilization has increased up to 55.7%, the memory usage to 431 GB, and the network bandwidth to 17.9 GB/sec.
 
-![Figure 9: GC cpu time](./images/garbage-collector/cpu.png)
+![Figure 9: GC cpu](./images/garbage-collector/cpu.png)
 
-![Figure 10: GC memory time](./images/garbage-collector/memory.png)
+![Figure 10: GC memory](./images/garbage-collector/memory.png)
 
-![Figure 11: GC network time](./images/garbage-collector/network.png)
+![Figure 11: GC network](./images/garbage-collector/network.png)
 
 ### Experimenting with the number of executors
 In an attempt to increase the parallel computation in our cluster we decided to experiment with the number of executors per core node. To properly do that we had to split the resources of each node to accommodate the needs of the executors. We followed the advice provided by [Amazon](https://aws.amazon.com/blogs/big-data/best-practices-for-successfully-managing-memory-for-apache-spark-applications-on-amazon-emr/) and experimented with the following values:
@@ -94,6 +94,19 @@ Number of executors per node | Processing Time (min) | CPU utilization (%) | Mem
 
 
 To reduce the aforementioned possible I/O bottleneck we used a 80GBit Root Device Volume size, which did not improve significantly the processing time (still 5.5 minutes), yet it boosted the CPU utilization to 65% (unfortunately due to "budget limitations we cannot provide graphs of this run). In the following figures the graphs for each of the aforementioned runs can be found. 
+
+#### 2 executors per node
+![Figure 12: 2 executors time](./images/multiple-executors/2exec/times.png)
+
+![Figure 13: 2 executors cpu time](./images/multiple-executors/2exec/cpu.png)
+
+![Figure 14: 2 executors memory time](./images/multiple-executors/2exec/memory.png)
+
+![Figure 15: 2 executors network time](./images/multiple-executors/2exec/network.png)
+
+#### 7 executors per node
+
+#### 11 executors per node
 
 ### KryoSerializer and Dominant Resource Calculator
 Finally, in an attempt to further improve the performance of our system, we specifically set the *spark.serializer* flag to *org.apache.spark.serializer.KryoSerializer*, so that the Kryo Serializer could be used. Yet, we did not obtain any significant improvement neither in the execution time nor in the rest Ganglia metrics, which could be explained by the fact that Spark Datasets use specialized Encoders, which "understand" the internal structure of the data and can efficiently transform objects into internal binary storage, rather than standard serializers.
