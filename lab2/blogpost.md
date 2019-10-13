@@ -26,7 +26,14 @@ At this point, we decided to spin up the setup suggested in the manual, meaning 
 
 ![Figure 1: Initial times](./images/initial-images/times.png)
 
-In the following 3 figures we can observe a cpu utilization of about 50% of the available resources, while the memory usage was equal to about 130GB of the total 1.2TB and the network bandwidth was up to 16.5 GB/s. In addition, as it can be seen in the execeutors' figure, garbage collection occupies about 16% of the total task time. From these results, we noticed, that there must be still place for improvement for our application, so we organized this report to depict our optimization attempts as follows: in the [Code optimization](#code-optimization) section we present the code optimizations performed along with the obtained results showing, and in the [EMR optimizations](#emr-optimizations) section we present the EMR/Spark optimizations we experimented with to better utilize our resources. Finally, in the [Metric optimization](#metric-optimization) section, we analyze the way in which we tried to optimize our chosen metric to accommodate both run-time and the cost of execution.
+In the following 4 figures we can observe a cpu utilization of about 50% of the available resources, while the memory usage was equal to about 130GB of the total 1.2TB and the network bandwidth was up to 16.5 GB/s. In addition, as it can be seen in the executors' figure, garbage collection occupies about 16% of the total task time. 
+
+![Figure 2: Initial cpu](./images/initial-images/cpu.png)
+![Figure 3: Initial memory](./images/initial-images/memory.png)
+![Figure 4: Initial network](./images/initial-images/network.png)
+![Figure 4: Initial executors](./images/initial-images/executors.png)
+
+From these results, we noticed, that there must be still place for improvement for our application, so we organized this report to depict our optimization attempts as follows: in the [Code optimization](#code-optimization) section we present the code optimizations performed along with the obtained results showing, and in the [EMR optimizations](#emr-optimizations) section we present the EMR/Spark optimizations we experimented with to better utilize our resources. Finally, in the [Metric optimization](#metric-optimization) section, we analyze the way in which we tried to optimize our chosen metric to accommodate both run-time and the cost of execution.
 
 ## Code optimization
 
