@@ -49,8 +49,7 @@ In the following figures, the cpu, memory and network utilizations are presented
 In an attempt to increase the parallel computation in our cluster we decided to experiment with the number of executors per core node. To properly do that we had to split the resources of each node to accommodate the needs of the executors. We followed the advice provided by [Amazon](https://aws.amazon.com/blogs/big-data/best-practices-for-successfully-managing-memory-for-apache-spark-applications-on-amazon-emr/) and experimented with the following values:
 
 - *spark.executor.cores*: The number of cores that each executor should use. According to Amazon, assigning executors with a large number of virtual cores would lead to a low number of executors and, therefore, reduced parallelism, while assigning a low number of virtual cores would lead to a high number of executors, thus a larger amount of I/O operations. It was suggested to use 5 cores per executor, which in our case would lead to 7 executors per instance. This value was calculated as follows:
-    
-*numbe of executors per instance = (total number of virtual cores per instance - 1)/spark.executors.cores*
+    *number of executors per instance = (total number of virtual cores per instance - 1)/spark.executors.cores*
 
 One virtual core is subtracted from the total number of virtual cores to be reserved for the Hadoop daemons.
 - *spark.executor.memory*: The total executor memory can be calculated by dividing the total RAM per instance by the number of executors per instance, again providing 1GB for the Hadoop daemons. This total executor memory includes both the executor memory and the overhead, thus spark.executor.memory was set equal to 90% of the total executor memory.  
@@ -59,9 +58,30 @@ One virtual core is subtracted from the total number of virtual cores to be rese
 - *spark.driver.cores*: This value was set equal to spark.executor.cores.
 - *spark.executor.instances*: This value can be calculated by multiplying the number of executors with the total number of instances, again reserving one executor for the driver.
 - *spark.default.parallelism*: The formula to calculate this value is the following:
+    *spark.default.parallelism = 2 x spark.executor.instances x spark.executors.cores*
+    
+After appropriately calculating all the parameters presented above we experimented with 2,7, and 11 executors per instance. The results obtained can be seen in the following table . As it can be seen, when we used 2 executors per instance we obtained the worst results, probably because of reduced parallelism, while the best results were achieved when we increased the number of executors per instance to 7. This configuration complies with Amazon's suggestion of 5 cores per executor, yet the results obtained with the sole usage of the G1GC garbage collector prevailed. Finally, the further increase of the number of executors did not lead to a further performance increase most probably due to I/O limitations of our cluster.
 
-*spark.default.parallelism = 2 x spark.executor.instances x spark.executors.cores*
+Number of executors per node | Processing Time (min) | CPU utilization (%) | Memory usage (GB)| Network bandwidth (GB/s)
+---------------------------- | --------------------- | ------------------- | ---------------- | ------------------------
+              2              |       7 min 13 s      |         34          |        200       |            13.5 
+              7              |       5 min 32 s      |         59          |        400       |            17.8
+              11             |       5 min 52 s      |         57          |        300       |            16.4
+
+To reduce the aforementioned possible I/O bottleneck we used a 80GBit Root Device Volume size, which did not improve significantly the processing time (still 5.5 minutes), yet it boosted the CPU utilization to 65% (unfortunately due to "budget limitations we cannot provide graphs of this run). In the following figures the graphs for each of the aforementioned runs can be found. 
 
 ### KryoSerializer and Dominant Resource Calculator
+Finally, in an attempt to further improve the performance of our system, we specifically set the *spark.serializer* flag to *org.apache.spark.serializer.KryoSerializer*, so that the Kryo Serializer could be used. Yet, we did not obtain any significant improvement neither in the execution time nor in the rest Ganglia metrics, which could be explained by the fact that Spark Datasets use specialized Encoders, which "understand" the internal structure of the data and can efficiently transform objects into internal binary storage, rather than standard serializers.
+
+In addition, in a final attempt to leverage even more the capabilities of our instances we replaced the *DefaultResourceCalculator* YARN Capacity Scheduler with the *DominantResourceCalculator* one, which takes into account both the memory and cpu availability in the resource allocation process. Again no significant improvement was observed. 
 
 ## Metric optimization
+As it was mentioned in the report of the first lab assignment, we decided that in the metric to optimize we should take into account both the performance of the system and the cost of the machines used. As a result, we decided to maximize the *throughput / cost* ratio, where *throughput = dataset size / execution time* and *cost = number of instances x price per hour x execution time / 60*
+
+To do so, we varied the number of core nodes used so that the price would decrease, at the expense of performance degradation of course. The configurations that provided the best results so far were tested, meaning 7 executors per node with the Garbage First Garbage Collector (G1GC) applied, for a varying number of core nodes, ranging from 10 to 20 with a step of 5. We attempted to retain the processing time lower or close to 10 minutes, so that the execution time could be still considered adequate. The results of our experimentation can be seen in the following table.
+
+Number of Core Nodes | Processing Time (min) | Dataset size (TB) | Price/hour per node ($/h)| Total cost ($) | Our metric 
+-------------------- | --------------------- | ----------------- | ------------------------ | -------------- | ----------
+         10          |           10          |                   |                          |      0.545     |   13.762
+         15          |           6.9         |         4.5       |           0.297          |      0.547     |   19.871
+         20          |           5.5         |                   |                          |      0.572     |   23.839
