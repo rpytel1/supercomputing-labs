@@ -93,7 +93,7 @@ Number of executors per node | Processing Time (min) | CPU utilization (%) | Mem
   11   |   5 min 52 s   |   57   |   300  |   16.4          
 
 
-To reduce the aforementioned possible I/O bottleneck we used a 80GBit Root Device Volume size, which did not improve significantly the processing time (still 5.5 minutes), yet it boosted the CPU utilization to 65% (unfortunately due to "budget limitations we cannot provide graphs of this run). In the following figures the graphs for each of the aforementioned runs can be found. 
+To reduce the aforementioned possible I/O bottleneck we used a 80GBit Root Device Volume size, which did not improve significantly the processing time (still 5.5 minutes), yet it boosted the CPU utilization to 65% (unfortunately due to "budget limitations" we cannot provide graphs of this run). In the following figures the graphs for each of the aforementioned runs can be found. 
 
 #### 2 executors per node
 
@@ -137,7 +137,17 @@ Finally, in an attempt to further improve the performance of our system, we spec
 In addition, in a final attempt to leverage even more the capabilities of our instances we replaced the *DefaultResourceCalculator* YARN Capacity Scheduler with the *DominantResourceCalculator* one, which takes into account both the memory and cpu availability in the resource allocation process. Again no significant improvement was observed. 
 
 ## Metric optimization
-As it was mentioned in the report of the first lab assignment, we decided that in the metric to optimize we should take into account both the performance of the system and the cost of the machines used. As a result, we decided to maximize the *throughput / cost* ratio, where *throughput = dataset size / execution time* and *cost = number of instances x price per hour x execution time / 60*
+As it was mentioned in the report of the first lab assignment, we decided that in the metric to optimize we should take into account both the performance of the system and the cost of the machines used. As a result, we decided to maximize the following ratio:
+ 
+ ![Figure 27: metric](./images/metrics/metric.gif)
+ 
+ where 
+ 
+  ![Figure 28: throughput](./images/metrics/throughput.gif)
+
+ ![Figure 29: cost](./images/metrics/cost.gif)
+
+ *throughput / cost* ratio, where *throughput = dataset size / execution time* and *cost = number of instances x price per hour x execution time / 60*
 
 To do so, we varied the number of core nodes used so that the price would decrease, at the expense of performance degradation of course. The configurations that provided the best results so far were tested, meaning 7 executors per node with the Garbage First Garbage Collector (G1GC) applied, for a varying number of core nodes, ranging from 10 to 20 with a step of 5. We attempted to retain the processing time lower or close to 10 minutes, so that the execution time could be still considered adequate. The results of our experimentation can be seen in the following table. The complete graphs of these executions can be found in the [respective images folders](https://github.com/rpytel1/supercomputing-labs/tree/master/lab2/images) of this repository.
 
