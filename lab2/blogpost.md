@@ -1,7 +1,7 @@
 # Supercomputing for Big Data - Lab 2 Blogpost
 
-**Group 14
-Rafal Pytel 
+**Group 14 <br/>
+Rafal Pytel <br/>
 Vasileios Serentellos**
 
 ## Sections Structure
@@ -43,7 +43,24 @@ Apart from the aforementioned code optimizations we also attempted to improve th
 ### Garbage collector
 Initially, we noticed that the garbage collection process occupied 15.9% of the total task time, as it can be seen in Figure , which is considered a relatively high percentage of processing time. Thus, after consulting [multiple](https://aws.amazon.com/blogs/big-data/best-practices-for-successfully-managing-memory-for-apache-spark-applications-on-amazon-emr/) [sources](https://umbertogriffo.gitbooks.io/apache-spark-best-practices-and-tuning/content/tuning-java-garbage-collection.html) [online](https://databricks.com/blog/2015/05/28/tuning-java-garbage-collection-for-spark-applications.html) we decided to use the Garbage First Garbage Collector (G1GC), since it is supposed to provide both high throughput and low latency overcoming in that way the limitations of the default Parallel Collector (ParallelGC). To do so, we activated the *-XX:+UseG1GC* configuration flag, and in parallel we decreased the *InitiatingHeapOccupancyPercent* option's value from 45 to 35, to let G1GC initiate garbage collection sooner, in order to avoid potential garbage collection for the total memory, which would require a significant amount of time. This strategy led to a decrease in the total processing time to **5 minutes**, as it can be seen in the following figure, while the garbage collection process now occupied solely 3% of the total task time.
 
+In the following figures, the cpu, memory and network utilizations are presented when G1GC was used. A slight improvement to all these metrics compared to the results obtained for our best performing configuration from the [Code optimization](code-optimization) section can be observed. In particular, the cpu utilization has increased up to 55.7%, the memory usage to 431 GB, and the network bandwidth to 17.9 GB/sec.
+
 ### Experimenting with the number of executors
+In an attempt to increase the parallel computation in our cluster we decided to experiment with the number of executors per core node. To properly do that we had to split the resources of each node to accommodate the needs of the executors. We followed the advice provided by [Amazon](https://aws.amazon.com/blogs/big-data/best-practices-for-successfully-managing-memory-for-apache-spark-applications-on-amazon-emr/) and experimented with the following values:
+
+- *spark.executor.cores*: The number of cores that each executor should use. According to Amazon, assigning executors with a large number of virtual cores would lead to a low number of executors and, therefore, reduced parallelism, while assigning a low number of virtual cores would lead to a high number of executors, thus a larger amount of I/O operations. It was suggested to use 5 cores per executor, which in our case would lead to 7 executors per instance. This value was calculated as follows:
+    
+*numbe of executors per instance = (total number of virtual cores per instance - 1)/spark.executors.cores*
+
+One virtual core is subtracted from the total number of virtual cores to be reserved for the Hadoop daemons.
+- *spark.executor.memory*: The total executor memory can be calculated by dividing the total RAM per instance by the number of executors per instance, again providing 1GB for the Hadoop daemons. This total executor memory includes both the executor memory and the overhead, thus spark.executor.memory was set equal to 90% of the total executor memory.  
+- *spark.yarn.executor.memoryOverhead*: This value was set to 10% of the total executor memory.
+- *spark.driver.memory*: This value was set equal to spark.executor.memory.
+- *spark.driver.cores*: This value was set equal to spark.executor.cores.
+- *spark.executor.instances*: This value can be calculated by multiplying the number of executors with the total number of instances, again reserving one executor for the driver.
+- *spark.default.parallelism*: The formula to calculate this value is the following:
+
+*spark.default.parallelism = 2 x spark.executor.instances x spark.executors.cores*
 
 ### KryoSerializer and Dominant Resource Calculator
 
