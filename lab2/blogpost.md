@@ -29,9 +29,12 @@ At this point, we decided to spin up the setup suggested in the manual, meaning 
 In the following 4 figures we can observe a cpu utilization of about 50% of the available resources, while the memory usage was equal to about 130GB of the total 1.2TB and the network bandwidth was up to 16.5 GB/s. In addition, as it can be seen in the executors' figure, garbage collection occupies about 16% of the total task time. 
 
 ![Figure 2: Initial cpu](./images/initial-images/cpu.png)
+
 ![Figure 3: Initial memory](./images/initial-images/memory.png)
+
 ![Figure 4: Initial network](./images/initial-images/network.png)
-![Figure 4: Initial executors](./images/initial-images/executors.png)
+
+![Figure 5: Initial executors](./images/initial-images/executors.png)
 
 From these results, we noticed, that there must be still place for improvement for our application, so we organized this report to depict our optimization attempts as follows: in the [Code optimization](#code-optimization) section we present the code optimizations performed along with the obtained results showing, and in the [EMR optimizations](#emr-optimizations) section we present the EMR/Spark optimizations we experimented with to better utilize our resources. Finally, in the [Metric optimization](#metric-optimization) section, we analyze the way in which we tried to optimize our chosen metric to accommodate both run-time and the cost of execution.
 
@@ -41,10 +44,14 @@ In this section, we present the two main improvements we decided to apply on our
 
 ### Removing complex UDFs
 
-As our first code optimization, we decided to remove any unnecessary user-defined functions or replace some of them by their optimized framework versions (e.g *array_distinct* function instead of our implementation). Thanks to this step we observed a decrease in processing time to **5 minutes and 51 seconds**, which corresponds to a small improvement of 1.4%. 
+As our first code optimization, we decided to remove any unnecessary user-defined functions or replace some of them by their optimized framework versions (e.g *array_distinct* function instead of our implementation). Thanks to this step we observed a decrease in processing time to **5 minutes and 51 seconds**, which corresponds to a small improvement of 1.4%. This result can be confirmed by the following figure.
+
+![Figure 6: No udfs time](./images/code-optimisation/times_no_udfs.png)
 
 ### Parallel writes
-The next code improvement applied concerned the application of a parallel writes scheme. We decided that instead of collecting all results to one machine and then writing them to the designated output folder, it would be faster to omit the coalescing step, so that all core machines would write their individual results to the designated folder. We achieved a processing time of **5 min and 49 seconds**, which corresponds to an improvement of 0.5%. This indicated that our initial implementation was quite well optimized and we had to look for possible improvements somewhere else. 
+The next code improvement applied concerned the application of a parallel writes scheme. We decided that instead of collecting all results to one machine and then writing them to the designated output folder, it would be faster to omit the coalescing step, so that all core machines would write their individual results to the designated folder. We achieved a processing time of **5 min and 49 seconds**, which corresponds to an improvement of 0.5%. This indicated that our initial implementation was quite well optimized and we had to look for possible improvements somewhere else. This result can be confirmed by the following figure. 
+
+![Figure 7: Parallel writes time](./images/code-optimisation/times_parallel_writes.png)
 
 ## EMR optimizations
 Apart from the aforementioned code optimizations we also attempted to improve the performance of our big data processing cluster by fine tuning our cluster configuration, leveraging Yarn/Spark configuration flags to better meet the needs of the problem.
@@ -52,7 +59,15 @@ Apart from the aforementioned code optimizations we also attempted to improve th
 ### Garbage collector
 Initially, we noticed that the garbage collection process occupied 15.9% of the total task time, as it can be seen in Figure , which is considered a relatively high percentage of processing time. Thus, after consulting [multiple](https://aws.amazon.com/blogs/big-data/best-practices-for-successfully-managing-memory-for-apache-spark-applications-on-amazon-emr/) [sources](https://umbertogriffo.gitbooks.io/apache-spark-best-practices-and-tuning/content/tuning-java-garbage-collection.html) [online](https://databricks.com/blog/2015/05/28/tuning-java-garbage-collection-for-spark-applications.html) we decided to use the Garbage First Garbage Collector (G1GC), since it is supposed to provide both high throughput and low latency overcoming in that way the limitations of the default Parallel Collector (ParallelGC). To do so, we activated the *-XX:+UseG1GC* configuration flag, and in parallel we decreased the *InitiatingHeapOccupancyPercent* option's value from 45 to 35, to let G1GC initiate garbage collection sooner, in order to avoid potential garbage collection for the total memory, which would require a significant amount of time. This strategy led to a decrease in the total processing time to **5 minutes**, as it can be seen in the following figure, while the garbage collection process now occupied solely 3% of the total task time.
 
+![Figure 8: GC time](./images/garbage-collector/times.png)
+
 In the following figures, the cpu, memory and network utilizations are presented when G1GC was used. A slight improvement to all these metrics compared to the results obtained for our best performing configuration from the [Code optimization](#code-optimization) section can be observed. In particular, the cpu utilization has increased up to 55.7%, the memory usage to 431 GB, and the network bandwidth to 17.9 GB/sec.
+
+![Figure 9: GC cpu time](./images/garbage-collector/cpu.png)
+
+![Figure 10: GC memory time](./images/garbage-collector/memory.png)
+
+![Figure 11: GC network time](./images/garbage-collector/network.png)
 
 ### Experimenting with the number of executors
 In an attempt to increase the parallel computation in our cluster we decided to experiment with the number of executors per core node. To properly do that we had to split the resources of each node to accommodate the needs of the executors. We followed the advice provided by [Amazon](https://aws.amazon.com/blogs/big-data/best-practices-for-successfully-managing-memory-for-apache-spark-applications-on-amazon-emr/) and experimented with the following values:
