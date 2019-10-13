@@ -152,8 +152,8 @@ To do so, we varied the number of core nodes used so that the price would decrea
 
 Number of Core Nodes | Processing Time (min) | Dataset size (TB) | Price/hour per node ($/h)| Total cost ($) | Our metric 
 :------: | :-------: | :------: | :--------: | :-----------: | :----------:
-   10    |     10     |         |            |     0.545     |   13.762
+   10    |     10     |  4.5    |   0.297    |     0.545     |   13.762
    15    |     6.9    |  4.5    |   0.297    |     0.547     |   19.871
-   20    |     5.5    |         |            |     0.572     |   23.839
+   20    |     5.5    |  4.5    |   0.297    |     0.572     |   23.839
          
 At this point it should be mentioned that for each configuration the appropriate setting of the all parameters was calculated, as it was explained in the [Experimenting with the number of executors](#experimenting-with-the-number-of-executors) section. It can be easily seen from the results presented in the table above that the changes in the total cost of each configuration are quite small, especially between the 15-nodes and 10-nodes configurations, while the difference in processing time between the 15-nodes and 20-nodes configurations is less than 1.5 minute. Yet, as our metric suggests the qualifying option would be the 20-nodes configuration, since this one provides the higher value for our metric. 
