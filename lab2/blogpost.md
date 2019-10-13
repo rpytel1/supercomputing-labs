@@ -63,7 +63,7 @@ One virtual core is subtracted from the total number of virtual cores to be rese
 After appropriately calculating all the parameters presented above we experimented with 2,7, and 11 executors per instance. The results obtained can be seen in the following table . As it can be seen, when we used 2 executors per instance we obtained the worst results, probably because of reduced parallelism, while the best results were achieved when we increased the number of executors per instance to 7. This configuration complies with Amazon's suggestion of 5 cores per executor, yet the results obtained with the sole usage of the G1GC garbage collector prevailed. Finally, the further increase of the number of executors did not lead to a further performance increase most probably due to I/O limitations of our cluster.
 
 Number of executors per node | Processing Time (min) | CPU utilization (%) | Memory usage (GB)| Network bandwidth (GB/s) |
- ----- | -------------- | ------ | ------ | ---------
+ :-----: | :--------------: | :------: | :------: | :---------:
    2   |   7 min 13 s   |   34   |   200  |   13.5          
    7   |   5 min 32 s   |   59   |   400  |   17.8          
   11   |   5 min 52 s   |   57   |   300  |   16.4          
