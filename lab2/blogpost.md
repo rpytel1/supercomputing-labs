@@ -61,7 +61,7 @@ Initially, we noticed that the garbage collection process occupied 15.9% of the 
 
 ![Figure 8: GC time](./images/garbage-collector/times.png)
 
-In the following figures, the cpu, memory and network utilizations are presented when G1GC was used. A slight improvement to all these metrics compared to the results obtained for our best performing configuration from the [Code optimization](#code-optimization) section can be observed. In particular, the cpu utilization has increased up to 55.7%, the memory usage to 431 GB, and the network bandwidth to 17.9 GB/sec.
+In the following figures, the cpu, memory and network utilizations are presented when G1GC was used. A slight improvement to all these metrics compared to the results obtained for our best performing configuration from the [Code optimization](#code-optimization) section can be observed. In particular, the cpu utilization has increased up 55.7%, the memory usage to 431 GB, and the network bandwidth to 17.9 GB/sec.
 
 ![Figure 9: GC cpu](./images/garbage-collector/cpu.png)
 
@@ -82,9 +82,9 @@ One virtual core is subtracted from the total number of virtual cores to be rese
 - *spark.driver.cores*: This value was set equal to spark.executor.cores.
 - *spark.executor.instances*: This value can be calculated by multiplying the number of executors with the total number of instances, again reserving one executor for the driver.
 - *spark.default.parallelism*: The formula to calculate this value is the following: 
-  ![Figure 11a: metric](./images/multiple-executors/parallelism.gif)
+  ![Figure 11b: metric](./images/multiple-executors/parallelism.gif)
 
-After appropriately calculating all the parameters presented above we experimented with 2,7, and 11 executors per instance. The results obtained can be seen in the following table . As it can be seen, when we used 2 executors per instance we obtained the worst results, probably because of reduced parallelism, while the best results were achieved when we increased the number of executors per instance to 7. This configuration complies with Amazon's suggestion of 5 cores per executor, yet the results obtained with the sole usage of the G1GC garbage collector prevailed. Finally, the further increase of the number of executors did not lead to a further performance increase most probably due to I/O limitations of our cluster.
+After appropriately calculating all the parameters presented above we experimented with 2,7, and 11 executors per instance. The results obtained can be seen in the following table . As it can be seen, when we used 2 executors per instance we obtained the worst results, probably because of reduced parallelism, while the best results were achieved when we increased the number of executors per instance to 7. This configuration complies with Amazon's suggestion of 5 cores per executor, yet the results obtained with the sole usage of the G1GC garbage collector prevailed in terms of execution time. Finally, the further increase of the number of executors did not lead to a further performance increase most probably due to I/O limitations of our cluster.
 
 Number of executors per node | Processing Time (min) | CPU utilization (%) | Memory usage (GB)| Network bandwidth (GB/s) |
  :-----: | :--------------: | :------: | :------: | :---------:
@@ -156,4 +156,4 @@ Number of Core Nodes | Processing Time (min) | Dataset size (TB) | Price/hour pe
    15    |     6.9    |  4.5    |   0.297    |     0.547     |   19.871
    20    |     5.5    |         |            |     0.572     |   23.839
          
-At this point it should be mentioned that for each configuration the appropriate setting of the all parameters was calculated as it was explained in the [Experimenting with the number of executors](#experimenting-with-the-number-of-executors) section. It can be easily seen from the results presented in the table above that the changes in the total cost of each configuration are quite small, especially between the 15-nodes and 10-nodes configurations, while the difference in processing time between the 15-nodes and 20-nodes configurations is less than 1.5 minute. Yet, as our metric suggests the qualifying option would be the 20-nodes configuration, since this one provides the higher value for our metric. 
+At this point it should be mentioned that for each configuration the appropriate setting of the all parameters was calculated, as it was explained in the [Experimenting with the number of executors](#experimenting-with-the-number-of-executors) section. It can be easily seen from the results presented in the table above that the changes in the total cost of each configuration are quite small, especially between the 15-nodes and 10-nodes configurations, while the difference in processing time between the 15-nodes and 20-nodes configurations is less than 1.5 minute. Yet, as our metric suggests the qualifying option would be the 20-nodes configuration, since this one provides the higher value for our metric. 
