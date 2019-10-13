@@ -1,6 +1,6 @@
 # Supercomputing for Big Data - Lab 2 Blogpost
 
-**#####Group 14#####<br/>
+**Group 14 <br/>
 Rafal Pytel <br/>
 Vasileios Serentellos**
 
