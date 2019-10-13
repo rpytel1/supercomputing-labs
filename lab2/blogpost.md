@@ -1,6 +1,6 @@
 # Supercomputing for Big Data - Lab 2 Blogpost
 
-**Group 14 <br/>
+**#####Group 14#####<br/>
 Rafal Pytel <br/>
 Vasileios Serentellos**
 
@@ -96,17 +96,40 @@ Number of executors per node | Processing Time (min) | CPU utilization (%) | Mem
 To reduce the aforementioned possible I/O bottleneck we used a 80GBit Root Device Volume size, which did not improve significantly the processing time (still 5.5 minutes), yet it boosted the CPU utilization to 65% (unfortunately due to "budget limitations we cannot provide graphs of this run). In the following figures the graphs for each of the aforementioned runs can be found. 
 
 #### 2 executors per node
+
 ![Figure 12: 2 executors time](./images/multiple-executors/2exec/times.png)
 
-![Figure 13: 2 executors cpu time](./images/multiple-executors/2exec/cpu.png)
+![Figure 13: 2 executors cpu](./images/multiple-executors/2exec/cpu.png)
 
-![Figure 14: 2 executors memory time](./images/multiple-executors/2exec/memory.png)
+![Figure 14: 2 executors memory](./images/multiple-executors/2exec/memory.png)
 
-![Figure 15: 2 executors network time](./images/multiple-executors/2exec/network.png)
+![Figure 15: 2 executors network](./images/multiple-executors/2exec/network.png)
+
+![Figure 16: 2 executors executors](./images/multiple-executors/2exec/executors.png)
 
 #### 7 executors per node
 
+![Figure 17: 7 executors time](./images/multiple-executors/7exec/times.png)
+
+![Figure 18: 7 executors cpu](./images/multiple-executors/7exec/cpu.png)
+
+![Figure 19: 7 executors memory](./images/multiple-executors/7exec/memory.png)
+
+![Figure 20: 7 executors network](./images/multiple-executors/7exec/network.png)
+
+![Figure 21: 7 executors executors](./images/multiple-executors/7exec/executors.png)
+
 #### 11 executors per node
+
+![Figure 22: 11 executors time](./images/multiple-executors/11exec/times.png)
+
+![Figure 23: 11 executors cpu](./images/multiple-executors/11exec/cpu.png)
+
+![Figure 24: 11 executors memory](./images/multiple-executors/11exec/memory.png)
+
+![Figure 25: 11 executors network](./images/multiple-executors/11exec/network.png)
+
+![Figure 26: 11 executors executors](./images/multiple-executors/11exec/executors.png)
 
 ### KryoSerializer and Dominant Resource Calculator
 Finally, in an attempt to further improve the performance of our system, we specifically set the *spark.serializer* flag to *org.apache.spark.serializer.KryoSerializer*, so that the Kryo Serializer could be used. Yet, we did not obtain any significant improvement neither in the execution time nor in the rest Ganglia metrics, which could be explained by the fact that Spark Datasets use specialized Encoders, which "understand" the internal structure of the data and can efficiently transform objects into internal binary storage, rather than standard serializers.
@@ -116,7 +139,7 @@ In addition, in a final attempt to leverage even more the capabilities of our in
 ## Metric optimization
 As it was mentioned in the report of the first lab assignment, we decided that in the metric to optimize we should take into account both the performance of the system and the cost of the machines used. As a result, we decided to maximize the *throughput / cost* ratio, where *throughput = dataset size / execution time* and *cost = number of instances x price per hour x execution time / 60*
 
-To do so, we varied the number of core nodes used so that the price would decrease, at the expense of performance degradation of course. The configurations that provided the best results so far were tested, meaning 7 executors per node with the Garbage First Garbage Collector (G1GC) applied, for a varying number of core nodes, ranging from 10 to 20 with a step of 5. We attempted to retain the processing time lower or close to 10 minutes, so that the execution time could be still considered adequate. The results of our experimentation can be seen in the following table.
+To do so, we varied the number of core nodes used so that the price would decrease, at the expense of performance degradation of course. The configurations that provided the best results so far were tested, meaning 7 executors per node with the Garbage First Garbage Collector (G1GC) applied, for a varying number of core nodes, ranging from 10 to 20 with a step of 5. We attempted to retain the processing time lower or close to 10 minutes, so that the execution time could be still considered adequate. The results of our experimentation can be seen in the following table. The complete graphs of these executions can be found in the [respective images folders](https://github.com/rpytel1/supercomputing-labs/tree/master/lab2/images) of this repository.
 
 Number of Core Nodes | Processing Time (min) | Dataset size (TB) | Price/hour per node ($/h)| Total cost ($) | Our metric 
 :------: | :-------: | :------: | :--------: | :-----------: | :----------:
@@ -124,4 +147,4 @@ Number of Core Nodes | Processing Time (min) | Dataset size (TB) | Price/hour pe
    15    |     6.9    |  4.5    |   0.297    |     0.547     |   19.871
    20    |     5.5    |         |            |     0.572     |   23.839
          
-At this point it should be mentioned that for each configuration the appropriate setting of the all parameters was calculated as it was explained in the [Experimenting with the number of executors](#experimenting-with-the-number-of-executors) section. It can be easily seen from the results presented in the table above that the changes in the total cost of each configuration are quite small, especially between the 15-nodes and 10-nodes configurations, while the difference in processing time between the 15-nodes and 20-nodes configurations is less than 1.5 minute. Yet, as our metric suggests the qualifying option would be the 20-nodes configuration, since this one provides the higher value for our metric.
+At this point it should be mentioned that for each configuration the appropriate setting of the all parameters was calculated as it was explained in the [Experimenting with the number of executors](#experimenting-with-the-number-of-executors) section. It can be easily seen from the results presented in the table above that the changes in the total cost of each configuration are quite small, especially between the 15-nodes and 10-nodes configurations, while the difference in processing time between the 15-nodes and 20-nodes configurations is less than 1.5 minute. Yet, as our metric suggests the qualifying option would be the 20-nodes configuration, since this one provides the higher value for our metric. 
