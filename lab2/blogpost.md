@@ -82,9 +82,9 @@ As it was mentioned in the report of the first lab assignment, we decided that i
 To do so, we varied the number of core nodes used so that the price would decrease, at the expense of performance degradation of course. The configurations that provided the best results so far were tested, meaning 7 executors per node with the Garbage First Garbage Collector (G1GC) applied, for a varying number of core nodes, ranging from 10 to 20 with a step of 5. We attempted to retain the processing time lower or close to 10 minutes, so that the execution time could be still considered adequate. The results of our experimentation can be seen in the following table.
 
 Number of Core Nodes | Processing Time (min) | Dataset size (TB) | Price/hour per node ($/h)| Total cost ($) | Our metric 
--------------------- | --------------------- | ----------------- | ------------------------ | -------------- | ----------
-         10          |           10          |                   |                          |      0.545     |   13.762
-         15          |           6.9         |         4.5       |           0.297          |      0.547     |   19.871
-         20          |           5.5         |                   |                          |      0.572     |   23.839
+:------: | :-------: | :------: | :--------: | :-----------: | :----------:
+   10    |     10     |         |            |     0.545     |   13.762
+   15    |     6.9    |  4.5    |   0.297    |     0.547     |   19.871
+   20    |     5.5    |         |            |     0.572     |   23.839
          
 At this point it should be mentioned that for each configuration the appropriate setting of the all parameters was calculated as it was explained in the [Experimenting with the number of executors](#experimenting-with-the-number-of-executors) section. It can be easily seen from the results presented in the table above that the changes in the total cost of each configuration are quite small, especially between the 15-nodes and 10-nodes configurations, while the difference in processing time between the 15-nodes and 20-nodes configurations is less than 1.5 minute. Yet, as our metric suggests the qualifying option would be the 20-nodes configuration, since this one provides the higher value for our metric.
