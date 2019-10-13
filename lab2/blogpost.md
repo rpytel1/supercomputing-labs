@@ -73,7 +73,7 @@ In the following figures, the cpu, memory and network utilizations are presented
 In an attempt to increase the parallel computation in our cluster we decided to experiment with the number of executors per core node. To properly do that we had to split the resources of each node to accommodate the needs of the executors. We followed the advice provided by [Amazon](https://aws.amazon.com/blogs/big-data/best-practices-for-successfully-managing-memory-for-apache-spark-applications-on-amazon-emr/) and experimented with the following values:
 
 - *spark.executor.cores*: The number of cores that each executor should use. According to Amazon, assigning executors with a large number of virtual cores would lead to a low number of executors and, therefore, reduced parallelism, while assigning a low number of virtual cores would lead to a high number of executors, thus a larger amount of I/O operations. It was suggested to use 5 cores per executor, which in our case would lead to 7 executors per instance. This value was calculated as follows:
-    *number of executors per instance = (total number of virtual cores per instance - 1)/spark.executors.cores*
+    ![Figure 11a: metric](./images/multiple-executors/calculations.gif)
 
 One virtual core is subtracted from the total number of virtual cores to be reserved for the Hadoop daemons.
 - *spark.executor.memory*: The total executor memory can be calculated by dividing the total RAM per instance by the number of executors per instance, again providing 1GB for the Hadoop daemons. This total executor memory includes both the executor memory and the overhead, thus spark.executor.memory was set equal to 90% of the total executor memory.  
@@ -81,9 +81,9 @@ One virtual core is subtracted from the total number of virtual cores to be rese
 - *spark.driver.memory*: This value was set equal to spark.executor.memory.
 - *spark.driver.cores*: This value was set equal to spark.executor.cores.
 - *spark.executor.instances*: This value can be calculated by multiplying the number of executors with the total number of instances, again reserving one executor for the driver.
-- *spark.default.parallelism*: The formula to calculate this value is the following:
-    *spark.default.parallelism = 2 x spark.executor.instances x spark.executors.cores*
-    
+- *spark.default.parallelism*: The formula to calculate this value is the following: 
+  ![Figure 11a: metric](./images/multiple-executors/parallelism.gif)
+
 After appropriately calculating all the parameters presented above we experimented with 2,7, and 11 executors per instance. The results obtained can be seen in the following table . As it can be seen, when we used 2 executors per instance we obtained the worst results, probably because of reduced parallelism, while the best results were achieved when we increased the number of executors per instance to 7. This configuration complies with Amazon's suggestion of 5 cores per executor, yet the results obtained with the sole usage of the G1GC garbage collector prevailed. Finally, the further increase of the number of executors did not lead to a further performance increase most probably due to I/O limitations of our cluster.
 
 Number of executors per node | Processing Time (min) | CPU utilization (%) | Memory usage (GB)| Network bandwidth (GB/s) |
