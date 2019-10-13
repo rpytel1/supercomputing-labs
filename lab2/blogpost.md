@@ -64,9 +64,9 @@ After appropriately calculating all the parameters presented above we experiment
 
 Number of executors per node | Processing Time (min) | CPU utilization (%) | Memory usage (GB)| Network bandwidth (GB/s) |
 :---------------------------:|:---------------------:|:-------------------:|:----------------:|:----------------------- :|
-              2              |       7 min 13 s      |         34          |        200       |            13.5          |
-              7              |       5 min 32 s      |         59          |        400       |            17.8          |
-              11             |       5 min 52 s      |         57          |        300       |            16.4          |
+              2              |       7 min 13 s      |         34          |        200       |            13.5          
+              7              |       5 min 32 s      |         59          |        400       |            17.8          
+              11             |       5 min 52 s      |         57          |        300       |            16.4          
 
 To reduce the aforementioned possible I/O bottleneck we used a 80GBit Root Device Volume size, which did not improve significantly the processing time (still 5.5 minutes), yet it boosted the CPU utilization to 65% (unfortunately due to "budget limitations we cannot provide graphs of this run). In the following figures the graphs for each of the aforementioned runs can be found. 
 
