@@ -1,0 +1,65 @@
+What is the difference between replications and partitions?
+In Kafka each topic are partitioned across multiple nodes in a cluster, in order to enable growth of certain topic
+beyond any limitations of one node. To identify certain message within partition each message has unique identifier
+called offset. In order to find a message across the cluster, each message is identified by tuple consisting of
+message topic, partition and aforementioned offset within partition.
+To achieve fault tolerance, replications of partitions are created across the cluster. These replications are copies of
+original partition and are kept to avoid data loss in case of the failure of the leader. Each of partition has leader,
+which handles read and write request for the partition, and some or zero followers, which passively follows the state
+of a leader. Consequently leader and followers have the same state of the partition. If the leader fails, one of the
+followers will automatically become leader instead and proceed with
+processing a task.
+
+Source: https://stackoverflow.com/questions/27150925/what-is-difference-between-partition-and-replica-of-a-topic-in-kafka-cluster
+
+What is Zookeeper’s role in the Kafka cluster? Why do we need a separate entity for this? max 50
+Zookeeper is used to provide flexible synchronization within distributed systems and store its naming and
+configuration data. It is used for controller election, configuration of the topics, access control lists and the
+membership of the cluster.
+We need separate entity for these purposes because it ensures coordination of all brokers within cluster.
+
+Source: https://www.cloudkarafka.com/blog/2018-07-04-cloudkarafka_what_is_zookeeper.html
+
+Why does Kafka by default not guarantee exactly once delivery semantics on producers? max 100
+Kafka to try achieve exactly once delivery semantics, sets unique producer id (PID) to every new producer, and
+sequence numbers for Kafka messages.
+Sequence number, which initially start from 0, for certain producer gets incremented with every message sent to the broker.
+If the sequence number is not exactly one greater than the last committed message from the PID/TopicPartition tuple.
+Messages with the lower sequence number are duplicate errors,which can be ignored, whereas larger will in
+out-of-sequence error, which means that some message have been lost, and is fatal.
+Main problem here is that new instance of a producer has new unique PID, so exactly once semantics can be guaranteed
+within single producer session.
+
+FML(116 word)
+
+Source: https://cwiki.apache.org/confluence/display/KAFKA/KIP-98+-+Exactly+Once+Delivery+and+Transactional+Messaging#KIP-98-ExactlyOnceDeliveryandTransactionalMessaging-IdempotentProducerGuarantees
+        https://www.confluent.io/blog/exactly-once-semantics-are-possible-heres-how-apache-kafka-does-it/
+
+
+1. On average, how many bytes per second does the stream transformer have to consume? How many does it produce?
+TODO: Describe how you did it.
+On average we get about 27 messages per second, key and string is 34 bytes for both key and value(19 for name).
+Tuples that are decremented per second are the same as the tuples that are being processed per second. Size of Long is 8 bytes.
+Incoming: number_of_messages_per_sec * Bits for key and name:  27 * 34 =918
+
+Bytes produced: name_size + count_size )*(message_incoming+message_decreasing)  (19+8)* 43*2 =2322
+
+3. Given that the histogram is stored in a Kafka StateStore, how would you extract the top 100 topics? Is this eficient?
+
+As KafkaStateStore is distributed and in key-value format there exist no ready to use methods to sort this data structure.
+To make it possible we can create every certain period of time a spare key value data structure. We would firstly
+transform initial data structure into list of tuples ordered by count and extract only first 100. After that we could
+create from this extracted list of tuples again key-value structure. Unfortunately, this solution would not be efficient,
+however,
+As more efficient solution we could firstly create list of 1000 most common topics, and update count of this elements on the spot.
+For extracting 100 most popular topic we would have extract the subset from 1000 most common topics in aforementioned manner.
+Every more significant period, like 15 minutes, we could regenerate 1000 most common topics to keep up to date.
+In our opinion this solution can consume less resources.
+
+5. What are the two ways you can scale your Kafka implementation over multiple nodes?
+
+One way to scale our solution is to start another instance of stream processing application on other machine in a cluster.
+Machines will become aware of each other existence and will start sharing processing work.
+Other way to scale our application is to increase number of consumers and producers. By doing so, we exploit the fact that topics can be easily partitioned.
+Thanks to that we can write and read to and from the same topic on multiple discs, which consequently will avoid I/O bottleneck.
+
