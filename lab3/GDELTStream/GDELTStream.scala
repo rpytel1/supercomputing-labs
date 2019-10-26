@@ -87,11 +87,11 @@ class HistogramTransformer extends Transformer[String, String, KeyValue[String, 
     // retrieve the key-value store named "Timestamps-last-hour"
     this.timeStore = context.getStateStore("Timestamps-last-hour").asInstanceOf[KeyValueStore[String, Long]]
 
-    // initiate the scheduler to be invoked every 500 miliseconds od stream time to check if a record is older than an hour
+    // initiate the scheduler to be invoked every 500 miliseconds of stream time to check if a record is older than an hour
     this.context.schedule(500, PunctuationType.STREAM_TIME, timestamp => {
 
       val iterator: KeyValueIterator[String, Long] = timeStore.all()  // take an iterator of the timestamp stateStore
-      // val interval: Long = TimeUnit.MILLISECONDS.convert(1L, TimeUnit.HOURS)
+      val retainPeriod: Long = TimeUnit.MILLISECONDS.convert(1L, TimeUnit.HOURS)  // the retaining period for records
 
       while (iterator.hasNext) {
 
@@ -99,8 +99,8 @@ class HistogramTransformer extends Transformer[String, String, KeyValue[String, 
         val recordTime: Long = e.key.split('|')(0).toLong   // take the record's timestamp
         val record: String = e.key.split('|')(1)            // take the record's name
 
-        // If it was more than 30s have passed -> to be replaced by interval for the final implemntation
-        if (((timestamp - recordTime) / 30000) > 1) {
+        // If it more than an hour has passed 
+        if (((timestamp - recordTime) / retainPeriod) > 1) {
           kvStore.put(record, kvStore.get(record) - e.value)  // decrement the count of the record by the count of the timestamp-record pair
           timeStore.delete(e.key) // and delete the timestamp-record entry from the timestamp statestore
         }
