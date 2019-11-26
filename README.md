@@ -3,4 +3,4 @@
 The lab manual with extensive information on each assignment can be found in [markdown](./doc/manual.md) or
 [pdf](./doc/manual.pdf)
 
-This is the forked lab files repository with our implementations for each assignment included in the lab manual.
+This is the forked lab files repository accompanied by our implementations for each assignment included in the lab manual.
